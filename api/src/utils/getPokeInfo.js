@@ -5,7 +5,7 @@ const { Op } = require("sequelize");
 
 let pokemonsApi = [];
 
-const getPokeApi = async () => {
+const getPokeApi = async () => { //TRAE TODOS LOS POKEMONS DE LA API
   try {
     if (!pokemonsApi.length) {
       const apiInfo = await axios.get("https://pokeapi.co/api/v2/pokemon"); //20 pokemons
@@ -36,12 +36,27 @@ const getPokeApi = async () => {
   }
 };
 
-const getPokeDb = async (name) => {
-  let dbInfo = [];
-  let dbName = [];
+const getPokeName = async (name) => { //TRAE TODOS LOS POKEMONES POR NOMBRE
+  const apiName = (await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`))
+    .data;
 
+  const pokeNames = [apiName];
+
+  const obj = pokeNames.map((e) => {
+    return {
+      id: e.id,
+      name: e.name,
+      imageCard: e.sprites.front_default,
+      types: e.types.map((e) => e.type.name),
+    };
+  });
+
+  return obj;
+};
+
+const getPokeDb = async (name) => {
   if (!name) {
-    dbInfo = await Pokemon.findAll({
+    let dbInfo = await Pokemon.findAll({
       include: [
         {
           model: Type,
@@ -54,7 +69,7 @@ const getPokeDb = async (name) => {
     });
     return dbInfo; //Cuando no le pasamos un name busca todos los poke de la db y sus tipos.
   } else {
-    dbName = Pokemon.findAll({
+    let dbName = Pokemon.findAll({
       include: [
         {
           model: Type,
@@ -72,4 +87,15 @@ const getPokeDb = async (name) => {
   }
 };
 
-module.exports = getPokeApi;
+const getAllName = async (name) => {
+  const apiPoke = await getPokeName(name);
+
+  if (apiPoke === false) {
+    const dbData = await getPokeDb(name);
+    return dbData;
+  } else {
+    return apiPoke;
+  }
+};
+
+module.exports = { getPokeApi, getPokeDb, getPokeName, getAllName };
