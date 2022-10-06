@@ -6,6 +6,7 @@ const {
   getPokeDb,
   getPokeName,
   getAllName,
+  getPokeId
 } = require("../utils/getPokeInfo");
 
 require("dotenv").config();
@@ -34,7 +35,36 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/:id", async (req, res) => {});
+router.get("/:id", async (req, res) => {
+  const {id} = req.params;
+
+  if(isNaN(id)){
+
+    const idDb = await Pokemon.findByPk(id,{
+      include: [
+        {
+          model: Type,
+          attributes: ['name'],
+          through: {
+            attributes: []
+          }
+        }
+      ]
+    })
+    res.status(200).json(idDb);
+  }else{
+  
+  try{
+    const idPokemons = await getPokeId(id);
+
+    res.status(200).json(idPokemons)
+
+
+  }catch(err){
+    console.log(err)
+  }
+}
+});
 
 router.post("/", async (req, res) => {
   const {
@@ -45,8 +75,9 @@ router.post("/", async (req, res) => {
     attack,
     defense,
     speed,
-    heigth,
-    weigth,
+    height,
+    weight,
+    createdDb,
   } = req.body;
 
   try {
@@ -63,22 +94,21 @@ router.post("/", async (req, res) => {
       attack,
       defense,
       speed,
-      heigth,
-      weigth,
+      height,
+      weight,
+      createdDb,
     });
 
-    //const pokeTypes = await Type.findAll({
-       // where: { name },
-     // });
+    const pokeTypes = await Type.findAll({
+      where: { name },
+    });
 
-     // newPoke.addType(pokeTypes);
+    newPoke.addType(pokeTypes);
 
-      res.status(200).json(newPoke);
-
+    res.status(200).json(newPoke);
   } catch (e) {
-    res.status(400).send('No se pudo crear perrito')
+    res.status(400).send("No se pudo crear perrito");
   }
 });
 
-router.get("/types", async (req, res) => {});
 module.exports = router;

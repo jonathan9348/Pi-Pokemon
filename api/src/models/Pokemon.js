@@ -19,12 +19,12 @@ module.exports = (sequelize) => {
       },
 
       imageCard: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false,
       },
 
       imageDetail: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false,
       },
 

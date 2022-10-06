@@ -2,10 +2,12 @@ require("dotenv").config();
 const axios = require("axios");
 const { Pokemon, Type } = require("../db");
 const { Op } = require("sequelize");
+const { response } = require("express");
 
 let pokemonsApi = [];
 
-const getPokeApi = async () => { //TRAE TODOS LOS POKEMONS DE LA API
+const getPokeApi = async () => {
+  //TRAE TODOS LOS POKEMONS DE LA API
   try {
     if (!pokemonsApi.length) {
       const apiInfo = await axios.get("https://pokeapi.co/api/v2/pokemon"); //20 pokemons
@@ -36,7 +38,8 @@ const getPokeApi = async () => { //TRAE TODOS LOS POKEMONS DE LA API
   }
 };
 
-const getPokeName = async (name) => { //TRAE TODOS LOS POKEMONES POR NOMBRE
+const getPokeName = async (name) => {
+  //TRAE TODOS LOS POKEMONES POR NOMBRE
   const apiName = (await axios.get(`https://pokeapi.co/api/v2/pokemon/${name}`))
     .data;
 
@@ -52,6 +55,25 @@ const getPokeName = async (name) => { //TRAE TODOS LOS POKEMONES POR NOMBRE
   });
 
   return obj;
+};
+
+const getPokeId = async (id) => {
+  const pokeId = await axios.get(`https://pokeapi.co/api/v2/pokemon/${id}`);
+  const response = pokeId.data;
+
+  const pokemonId = {
+    id: response.id,
+    name: response.name,
+    imageCard: response.sprites.front_default,
+    types: response.types.map((e) => ({ name: e.type.name })),
+    attack: response.stats[1].base_stat,
+    defense: response.stats[2].base_stat,
+    speed: response.stats[5].base_stat,
+    height: response.height,
+    weight: response.weight,
+  };
+
+  return pokemonId;
 };
 
 const getPokeDb = async (name) => {
@@ -98,4 +120,4 @@ const getAllName = async (name) => {
   }
 };
 
-module.exports = { getPokeApi, getPokeDb, getPokeName, getAllName };
+module.exports = { getPokeApi, getPokeDb, getPokeName, getAllName, getPokeId };
