@@ -1,12 +1,10 @@
 const { Router } = require("express");
 const { Pokemon, Type } = require("../db");
-const axios = require("axios");
 const {
   getPokeApi,
   getPokeDb,
-  getPokeName,
   getAllName,
-  getPokeId
+  getPokeId,
 } = require("../utils/getPokeInfo");
 
 require("dotenv").config();
@@ -36,34 +34,30 @@ router.get("/", async (req, res) => {
 });
 
 router.get("/:id", async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
 
-  if(isNaN(id)){
-
-    const idDb = await Pokemon.findByPk(id,{
+  if (isNaN(id)) {
+    const idDb = await Pokemon.findByPk(id, {
       include: [
         {
           model: Type,
-          attributes: ['name'],
+          attributes: ["name"],
           through: {
-            attributes: []
-          }
-        }
-      ]
-    })
+            attributes: [],
+          },
+        },
+      ],
+    });
     res.status(200).json(idDb);
-  }else{
-  
-  try{
-    const idPokemons = await getPokeId(id);
+  } else {
+    try {
+      const idPokemons = await getPokeId(id);
 
-    res.status(200).json(idPokemons)
-
-
-  }catch(err){
-    console.log(err)
+      res.status(200).json(idPokemons);
+    } catch (err) {
+      console.log(err);
+    }
   }
-}
 });
 
 router.post("/", async (req, res) => {
